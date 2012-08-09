@@ -1,0 +1,34 @@
+#!/bin/bash 
+
+PWLEN=12
+N=5
+DIGITS=1
+SYM=1
+MIN_WORD=3
+MAX_WORD=$(( $PWLEN - $DIGITS - $SYM - $MIN_WORD ))
+WORD_RANGE=$(( $MAX_WORD - $MIN_WORD ))
+SHUF=gshuf
+
+WORDLIST="/usr/share/dict/words /usr/share/dict/propernames /usr/share/dict/connectives"
+SYM_LIST=(\` \~ \! @ \# \$ % ^ \& \* \( \) - _ \= + \[ \{ \] \} \\ \| \; : \' \" , \< . \> / \?)
+SYM_LEN=${#SYM_LIST[*]}
+
+for (( I=0 ; I < N ; I++ )) ; do
+  SYMS=
+  DIGS=
+  FIRST_LEN=$(( $RANDOM % $WORD_RANGE + $MIN_WORD )) 
+  SECOND_LEN=$(( $PWLEN - $DIGITS - $SYM - $FIRST_LEN ))
+  WORD1=`cat $WORDLIST | grep "^.\{$FIRST_LEN\}\$" | $SHUF -n 1 | sed -e 's/^./\u&/' `
+  for (( J=0 ; J < SYM ; J++ )) ; do
+    SYM1=${SYM_LIST[$(( $RANDOM % $SYM_LEN ))]}
+    SYMS=$SYMS$SYM1
+  done 
+  for (( J=0 ; J < DIGITS ; J++ )) ; do
+    DIG1=$(( $RANDOM % 10 ))
+    DIGS=$DIGS$DIG1
+  done
+  WORD2=`cat $WORDLIST | grep "^.\{$SECOND_LEN\}\$" | $SHUF -n 1`
+  echo ${WORD1}${SYMS}${DIGS}${WORD2}
+done
+  
+

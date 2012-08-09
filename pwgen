@@ -1,5 +1,6 @@
 #!/bin/bash 
 
+
 PWLEN=12
 N=5
 DIGITS=1
@@ -12,6 +13,22 @@ SHUF=gshuf
 WORDLIST="/usr/share/dict/words /usr/share/dict/propernames /usr/share/dict/connectives"
 SYM_LIST=(\` \~ \! @ \# \$ % ^ \& \* \( \) - _ \= + \[ \{ \] \} \\ \| \; : \' \" , \< . \> / \?)
 SYM_LEN=${#SYM_LIST[*]}
+
+function show_usage() {
+  echo "Usage: `basename $0` [-n \#passwords][-p pwlen][-d \#digits][-s \#symbols]"
+};
+
+while getopts ":p:n:d:s:" Option ; do
+  case $Option in
+    p) PWLEN=$OPTARG ;;
+    n) N=$OPTARG ;;
+    d) DIGITS=$OPTARG ;;
+    s) SYM=$OPTARG ;;
+    *) show_usage && exit 1 ;; 
+  esac
+done
+shift $(($OPTIND - 1))
+
 
 for (( I=0 ; I < N ; I++ )) ; do
   SYMS=

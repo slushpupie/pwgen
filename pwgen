@@ -51,6 +51,10 @@ for (( I=0 ; I < N ; I++ )) ; do
   if [ $WORD_RANGE -gt 4 ] ; then
     WORD_RANGE=4
   fi
+  if [ $WORD_RANGE -lt 1 ] ; then
+    I=$(( I-1 ))
+    continue
+  fi
   SECOND_LEN=$(( $L_MAX_WORD - ( $RANDOM % $WORD_RANGE ) ))
   LEFT=$(( $LEFT - $SECOND_LEN ))
 

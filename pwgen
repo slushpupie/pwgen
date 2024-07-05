@@ -9,7 +9,8 @@ MIN_WORD=3
 MAX_WORD1=12
 SHUF=gshuf
 
-WORDLIST="/usr/share/dict/words /usr/share/dict/propernames /usr/share/dict/connectives"
+#WORDLIST="/usr/share/dict/words /usr/share/dict/propernames /usr/share/dict/connectives"
+WORDLIST="right_words"
 SYM_LIST=(\` \~ \! @ \# \$ % ^ \& \* \( \) - _ \= + \[ \{ \] \} \\ \| \; : \' \" , \< . \> / \?)
 SYM_LEN=${#SYM_LIST[*]}
 

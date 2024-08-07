@@ -2,30 +2,36 @@
 
 
 PWLEN=12
-N=5
+N=25
 DIGITS=1
 SYM=1
 MIN_WORD=3
 MAX_WORD1=12
 SHUF=gshuf
 
-#WORDLIST="/usr/share/dict/words /usr/share/dict/propernames /usr/share/dict/connectives"
-WORDLIST="right_words"
+WORDLIST="/usr/share/dict/words /usr/share/dict/propernames /usr/share/dict/connectives"
+#WORDLIST="right_words"
 SYM_LIST=(\` \~ \! @ \# \$ % ^ \& \* \( \) - _ \= + \[ \{ \] \} \\ \| \; : \' \" , \< . \> / \?)
 SYM_LEN=${#SYM_LIST[*]}
+LEFT_LETTERS="qwertasdfgzxcv"
+RIGHT_LETTERS="yuiophjklbnm"
 
 function show_usage() {
-  echo "Usage: `basename $0` [-n \#passwords][-p pwlen][-d \#digits][-s \#symbols][-w wordlists]"
+  echo "Usage: `basename $0` [-n \#passwords][-p pwlen][-d \#digits][-s \#symbols][-w wordlists][-l][-r]"
+  echo "  -l == left hand words (words using only left side of keyboard)"
+  echo "  -r == right hand words (words using only right side of keyboard)"
   echo "  More digits may be used to fill to pwlen"
 };
 
-while getopts ":p:n:d:s:w:" Option ; do
+while getopts ":p:n:d:s:w:lr" Option ; do
   case $Option in
     p) PWLEN=$OPTARG ;;
     n) N=$OPTARG ;;
     d) DIGITS=$OPTARG ;;
     s) SYM=$OPTARG ;;
     w) WORDLIST=$OPTARG ;;
+    l) LHAND=1 ;;
+    r) RHAND=1 ;;
     *) show_usage && exit 1 ;; 
   esac
 done
@@ -42,7 +48,16 @@ for (( I=0 ; I < N ; I++ )) ; do
     WORD_RANGE=4
   fi
   FIRST_LEN=$(( $MAX_WORD - ( $RANDOM % $WORD_RANGE ) ))
-  WORD1=`cat $WORDLIST | grep "^.\{$FIRST_LEN\}\$" | $SHUF -n 1 | sed -e 's/^./\u&/' `
+
+  FILTER="^.{$FIRST_LEN}\$"
+  if [ "$LHAND" -a "$RHAND" ] ; then
+    FILTER="(^[$LEFT_LETTERS]{$FIRST_LEN}\$)|(^[$RIGHT_LETTERS]{$FIRST_LEN}\$)"
+  elif [ "$LHAND" ] ; then
+    FILTER="^[$LEFT_LETTERS]{$FIRST_LEN}\$"
+  elif [ "$RHAND" ] ; then
+    FILTER="^[$RIGHT_LETTERS]{$FIRST_LEN}\$"
+  fi
+  WORD1=`cat $WORDLIST | tr '[:upper:]' '[:lower:]' | grep -i -E "$FILTER" | $SHUF -n 1 | sed -e 's/^./\u&/' `
   LEFT=$(( $PWLEN - $FIRST_LEN ))
  
   if [ $(($LEFT - $SYM - $DIGITS)) -lt $MAX_WORD ] ; then
@@ -59,7 +74,17 @@ for (( I=0 ; I < N ; I++ )) ; do
   SECOND_LEN=$(( $L_MAX_WORD - ( $RANDOM % $WORD_RANGE ) ))
   LEFT=$(( $LEFT - $SECOND_LEN ))
 
-  WORD2=`cat $WORDLIST | grep "^.\{$SECOND_LEN\}\$" | $SHUF -n 1`
+
+
+  FILTER="^.{$SECOND_LEN}\$"
+  if [ "$LHAND" -a "$RHAND" ] ; then
+    FILTER="(^[$LEFT_LETTERS]{$SECOND_LEN}\$)|(^[$RIGHT_LETTERS]{$SECOND_LEN}\$)"
+  elif [ "$LHAND" ] ; then
+    FILTER="^[$LEFT_LETTERS]{$SECOND_LEN}\$"
+  elif [ "$RHAND" ] ; then
+    FILTER="^[$RIGHT_LETTERS]{$SECOND_LEN}\$"
+  fi
+  WORD2=`cat $WORDLIST | tr '[:upper:]' '[:lower:]' | grep -i -E "$FILTER" | $SHUF -n 1`
   for (( J=0 ; J < SYM ; J++ )) ; do
     SYM1=${SYM_LIST[$(( $RANDOM % $SYM_LEN ))]}
     SYMS=$SYMS$SYM1
